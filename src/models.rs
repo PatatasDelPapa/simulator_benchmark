@@ -26,9 +26,14 @@ pub async fn producer(
         let passivated_list = state.get_mut(passivate_key).unwrap();
         if passivated_list[1] == Passivated::True {
             passivated_list[1] = Passivated::Warned;
+            shared_state.set(state);
             co.activate_one(consumer_key).await;
+        } else {
+            shared_state.set(state);
         }
 
+        let mut state = shared_state.take();
+        // dbg!(&state);
         let count = state.get_mut(count_key).unwrap();
         if *count < thresh_hold {
             *count += produce_ammount;
@@ -73,9 +78,13 @@ pub async fn consumer(
         let passivated_list = state.get_mut(passivate_key).unwrap();
         if passivated_list[0] == Passivated::True {
             passivated_list[0] = Passivated::Warned;
+            shared_state.set(state);
             co.activate_one(producer_key).await;
+        } else {
+            shared_state.set(state);
         }
 
+        let mut state = shared_state.take();
         let count = state.get_mut(count_key).unwrap();
         if *count >= consume_ammount {
             *count -= consume_ammount;

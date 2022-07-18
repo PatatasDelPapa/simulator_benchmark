@@ -1,6 +1,7 @@
 use std::rc::Rc;
+use std::cell::Cell;
 
-use simulator::Simulation;
+use simulator::{Simulation, State};
 
 use crate::models::{consumer, producer};
 
@@ -61,7 +62,7 @@ pub enum Passivated {
     False,
 }
 
-pub fn test_config() -> (Simulation<()>, simulator::StateKey<u32>) {
+pub fn test_config() -> (Simulation<()>, simulator::StateKey<u32>, Rc<Cell<State>>) {
    let mut simulation = Simulation::default();
 
     let shared_state = simulation.state();
@@ -104,10 +105,12 @@ pub fn test_config() -> (Simulation<()>, simulator::StateKey<u32>) {
     *state.get_mut(producer_key).unwrap() = Some(producer);
     *state.get_mut(consumer_key).unwrap() = Some(consumer);
 
+    // dbg!(&state);
+
     shared_state.set(state);
 
     simulation.schedule_now(producer);
     simulation.schedule_now(consumer);
 
-    (simulation, count_key)
+    (simulation, count_key, shared_state)
 }

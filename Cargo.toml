@@ -10,12 +10,12 @@ name = "simulator_benchmark"
 path = "src/lib.rs"
 
 [[bin]]
-name = "test_sim"
+name = "main"
 path = "src/main.rs"
 bench = false
 
 [[bench]]
-name = "main"
+name = "benchmark"
 harness = false
 
 [dependencies]

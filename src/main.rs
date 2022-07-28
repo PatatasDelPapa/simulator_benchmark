@@ -1,8 +1,13 @@
 use std::time::Duration;
 
 use simulator_benchmark::test_simulation;
+use simulator_benchmark::simulation;
 
 fn main() {
+    simulation(50000);
+}
+
+fn testing_simulator() {
     let (mut simulation, count_key, shared_state) = test_simulation();    
     let limit = Duration::from_secs(1000);
     simulation.run_with_limit(limit);

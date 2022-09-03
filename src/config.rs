@@ -1,15 +1,16 @@
-use std::rc::Rc;
 use std::cell::Cell;
+use std::rc::Rc;
 
-use simulator::{Simulation, State};
-
-use crate::models::{consumer, producer};
+use crate::{
+    models::{consumer, producer},
+    state::{State, StateKey},
+};
+use simulator::Simulation;
 
 pub fn set_simulation() -> Simulation<()> {
     let mut simulation = Simulation::default();
 
-    let shared_state = simulation.state();
-    let mut state = shared_state.take();
+    let mut state = State::default();
 
     let count_key = state.insert(0);
     let producer_key = state.insert(None);
@@ -20,7 +21,9 @@ pub fn set_simulation() -> Simulation<()> {
     let passivate_list = state.insert(passivate_list);
 
     let clock = simulation.clock();
-    
+
+    let shared_state = Rc::new(Cell::new(state));
+
     let producer = simulation.add_generator_fn(|co| {
         producer(
             co,
@@ -31,7 +34,7 @@ pub fn set_simulation() -> Simulation<()> {
             clock,
         )
     });
-    
+
     let clock = simulation.clock();
     let consumer = simulation.add_generator_fn(|co| {
         consumer(
@@ -44,6 +47,7 @@ pub fn set_simulation() -> Simulation<()> {
         )
     });
 
+    let mut state = shared_state.take();
     *state.get_mut(producer_key).unwrap() = Some(producer);
     *state.get_mut(consumer_key).unwrap() = Some(consumer);
 
@@ -62,12 +66,10 @@ pub enum Passivated {
     False,
 }
 
-pub fn test_config() -> (Simulation<()>, simulator::StateKey<u32>, Rc<Cell<State>>) {
-   let mut simulation = Simulation::default();
+pub fn test_config() -> (Simulation<()>, StateKey<u32>, Rc<Cell<State>>) {
+    let mut simulation = Simulation::default();
 
-    let shared_state = simulation.state();
-    let mut state = shared_state.take();
-
+    let mut state = State::default();
     let count_key = state.insert(0);
     let producer_key = state.insert(None);
     let consumer_key = state.insert(None);
@@ -75,8 +77,10 @@ pub fn test_config() -> (Simulation<()>, simulator::StateKey<u32>, Rc<Cell<State
     //[0 for Producer, 1 for consumer];
     let passivate_list: [Passivated; 2] = [Passivated::False; 2];
     let passivate_list = state.insert(passivate_list);
-    
+
     let clock = simulation.clock();
+
+    let shared_state = Rc::new(Cell::new(state));
 
     let producer = simulation.add_generator_fn(|co| {
         producer(
@@ -88,7 +92,7 @@ pub fn test_config() -> (Simulation<()>, simulator::StateKey<u32>, Rc<Cell<State
             clock,
         )
     });
-    
+
     let clock = simulation.clock();
 
     let consumer = simulation.add_generator_fn(|co| {
@@ -101,6 +105,8 @@ pub fn test_config() -> (Simulation<()>, simulator::StateKey<u32>, Rc<Cell<State
             clock,
         )
     });
+
+    let mut state = shared_state.take();
 
     *state.get_mut(producer_key).unwrap() = Some(producer);
     *state.get_mut(consumer_key).unwrap() = Some(consumer);

@@ -1,11 +1,12 @@
-use std::time::Duration;
-use std::rc::Rc;
 use std::cell::Cell;
+use std::rc::Rc;
+use std::time::Duration;
+
+use crate::state::{State, StateKey};
 
 mod config;
 mod models;
-
-use simulator::State;
+mod state;
 
 pub fn simulation(limit: u64) {
     let mut simulation = config::set_simulation();
@@ -14,6 +15,6 @@ pub fn simulation(limit: u64) {
     simulation.run_with_limit(limit);
 }
 
-pub fn test_simulation() -> (simulator::Simulation<()>, simulator::StateKey<u32>, Rc<Cell<State>>) {
+pub fn test_simulation() -> (simulator::Simulation<()>, StateKey<u32>, Rc<Cell<State>>) {
     config::test_config()
 }

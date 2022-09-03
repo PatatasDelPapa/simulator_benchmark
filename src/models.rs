@@ -1,7 +1,10 @@
 use std::{cell::Cell, rc::Rc, time::Duration};
 
-use crate::config::Passivated;
-use simulator::{Key, State, StateKey, Yielder, scheduler::ClockRef};
+use crate::{
+    config::Passivated,
+    state::{State, StateKey},
+};
+use simulator::{scheduler::ClockRef, Key, Yielder};
 
 pub async fn producer(
     co: Yielder<()>,
@@ -41,7 +44,6 @@ pub async fn producer(
             shared_state.set(state);
             co.hold(hold_time).await;
         } else {
-
             let passivate_list = state.get_mut(passivate_key).unwrap();
             passivate_list[0] = Passivated::True;
 
@@ -64,7 +66,7 @@ pub async fn consumer(
     passivate_key: StateKey<[Passivated; 2]>,
     _clock: ClockRef,
 ) {
-    // println!("Starting Consumer"); 
+    // println!("Starting Consumer");
     let hold_time = Duration::from_secs(8);
     let consume_ammount = 8;
 

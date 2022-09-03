@@ -7,6 +7,7 @@ fn main() {
     simulation(50000);
 }
 
+#[allow(dead_code)]
 fn testing_simulator() {
     let (mut simulation, count_key, shared_state) = test_simulation();    
     let limit = Duration::from_secs(1000);

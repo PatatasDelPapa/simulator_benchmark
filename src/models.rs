@@ -15,9 +15,9 @@ pub async fn producer(
     _clock: ClockRef,
 ) {
     // println!("Starting Producer");
-    let hold_time = Duration::from_secs(2);
+    let hold_time = Duration::from_secs(1);
     let produce_ammount = 1;
-    let thresh_hold = 15;
+    let thresh_hold = 12;
 
     let mut state = shared_state.take();
     let consumer_key = state.remove(consumer_key).flatten().unwrap();
